@@ -2,15 +2,14 @@
 
 namespace Tests;
 
-use Derekmd\Dusk\Firefox\SupportsFirefox;
-use Facebook\WebDriver\Firefox\FirefoxDriver;
+use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Laravel\Dusk\TestCase as BaseTestCase;
 
 abstract class DuskTestCase extends BaseTestCase
 {
-    use CreatesApplication, SupportsFirefox;
+    use CreatesApplication;
 
     /**
      * Prepare for Dusk test execution.
@@ -20,7 +19,9 @@ abstract class DuskTestCase extends BaseTestCase
      */
     public static function prepare()
     {
-        static::startFirefoxDriver();
+        if (! static::runningInSail()) {
+            static::startChromeDriver();
+        }
     }
 
     /**
@@ -30,19 +31,17 @@ abstract class DuskTestCase extends BaseTestCase
      */
     protected function driver()
     {
-        $options = [
-            'args' => [
-                '--headless',
-                '--window-size=1920,1080',
-            ],
-        ];
+        $options = (new ChromeOptions)->addArguments([
+            '--disable-gpu',
+            '--headless',
+            '--window-size=1920,1080',
+        ]);
 
-        $capabilities = DesiredCapabilities::firefox()
-            ->setCapability('moz:firefoxOptions', $options);
-
-        $capabilities->getCapability(FirefoxDriver::PROFILE)
-            ->setPreference('devtools.console.stdout.content', true);
-
-        return RemoteWebDriver::create('http://localhost:4444/wd/hub', $capabilities);
+        return RemoteWebDriver::create(
+            $_ENV['DUSK_DRIVER_URL'] ?? 'http://localhost:9515',
+            DesiredCapabilities::chrome()->setCapability(
+                ChromeOptions::CAPABILITY, $options
+            )
+        );
     }
 }
