@@ -1,13 +1,104 @@
-html,
+// Fonts
+@import "~@fortawesome/fontawesome-free/scss/brands";
+@import "~@fortawesome/fontawesome-free/scss/regular";
+@import "~@fortawesome/fontawesome-free/scss/solid";
+@import "~@fortawesome/fontawesome-free/scss/fontawesome";
+
+// Variables
+@import "variables";
+
+// Bootstrap
+//@import "~bootstrap/scss/bootstrap";
+// mdbootstrap pro
+@import "~mdbootstrap/css/mdb.css";
+@import "~mdbootstrap/css/bootstrap.css";
+@import "~mdbootstrap/scss/mdb-free";
+
 body {
-  background-color: #fff;
-  color: #fff;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 200;
-  height: 100vh;
-  margin: 0;
+  font-family: "Lato", sans-serif;
 }
 
+.main-head{
+  height: 150px;
+  background: #FFF;
+
+}
+
+.sidenav {
+  height: 100%;
+  background-color: #000;
+  overflow-x: hidden;
+  padding-top: 0;
+}
+
+
+.main {
+  padding: 0px 10px;
+  margin-left: 0;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+}
+
+@media screen and (max-width: 450px) {
+  .login-form{
+    margin-top: 10%;
+  }
+
+  .register-form{
+    margin-top: 10%;
+  }
+}
+
+@media screen and (min-width: 768px){
+  .main{
+    margin-left: 40%;
+  }
+
+  .sidenav{
+    width: 40%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+  }
+
+  .login-form{
+    margin-top: 80%;
+  }
+
+  .register-form{
+    margin-top: 20%;
+  }
+}
+
+
+.login-main-text{
+  margin-top: 20%;
+  padding: 60px;
+  color: #fff;
+}
+
+.login-main-text h2{
+  font-weight: 300;
+}
+
+.btn-black{
+  background-color: #000 !important;
+  color: #fff;
+}
+
+//html,
+//body {
+//  background-color: #fff;
+//  color: #fff;
+//  font-family: 'Nunito', sans-serif;
+//  font-weight: 200;
+//  height: 100vh;
+//  margin: 0;
+//}
+//
 .full-height {
   height: 100vh;
 }
@@ -15,51 +106,48 @@ body {
 .flex-center {
   align-items: center;
   display: flex;
-  justify-content: center;
+  justify-content: left;
 }
 
-.position-ref {
-  position: relative;
-}
-
-.top-right {
-  z-index: 3;
-  position: absolute;
-  right: 10px;
-  top: 18px;
-}
-
-.bottom-center {
-  z-index: 3;
-  position: absolute;
-  bottom: 18px;
-  text-align: center;
-}
-
+//
+//.top-right {
+//  z-index: 3;
+//  position: absolute;
+//  right: 10px;
+//  top: 18px;
+//}
+//
+//.bottom-center {
+//  z-index: 3;
+//  position: absolute;
+//  bottom: 18px;
+//  text-align: center;
+//}
+//
 .content {
   z-index: 3;
-  text-align: center;
+  text-align: left;
   position: absolute;
 }
-
-.title {
-  font-size: 84px;
-}
-
-.links > a {
-  color: #fff;
-  padding: 0 25px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.1rem;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.m-b-md {
-  margin-bottom: 30px;
-}
-
+//
+//.title {
+//  font-size: 84px;
+//}
+//
+//.links > a {
+//  color: #fff;
+//  padding: 0 25px;
+//  font-size: 13px;
+//  font-weight: 600;
+//  letter-spacing: 0.1rem;
+//  text-decoration: none;
+//  text-transform: uppercase;
+//}
+//
+//.m-b-md {
+//  margin-bottom: 30px;
+//}
+//
 .videoContainer {
   position: relative;
   width: 100%;
