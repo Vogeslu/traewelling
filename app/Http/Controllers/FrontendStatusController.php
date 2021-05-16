@@ -9,6 +9,7 @@ use App\Models\Event;
 use App\Models\Status;
 use Carbon\Carbon;
 use DateTime;
+use Doctrine\DBAL\Exception;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -171,7 +172,9 @@ class FrontendStatusController extends Controller
             $end = Carbon::createFromFormat("Y-m-d", $request->input('end'));
         }
 
-        if ($begin->isAfter($end)) {
+        try {
+            $usageBoardResponse = StatusBackend::getUsageBoard($begin, $end);
+        } catch (\Exception) {
             return redirect()
                 ->back()
                 ->with('error',
@@ -180,46 +183,8 @@ class FrontendStatusController extends Controller
                        $end->format('Y-m-d') .
                        '. Das darf nicht.');
         }
-        if ($end->isFuture()) {
-            $end = Carbon::now();
-        }
 
-        $dates                  = [];
-        $statusesByDay          = [];
-        $userRegistrationsByDay = [];
-        $hafasTripsByDay        = [];
-
-        // Wir schlagen einen Tag drauf, um ihn in der Loop direkt wieder runterzunehmen.
-        $dateIterator = $end->copy()->addDays(1);
-        $cnt          = 0;
-        $datediff     = $end->diffInDays($begin);
-        while ($cnt < $datediff) {
-            $cnt++;
-            $dateIterator->addDays(-1);
-            $dates[]                  = $dateIterator->format("Y-m-d");
-            $statusesByDay[]          = StatusController::usageByDay($dateIterator);
-            $userRegistrationsByDay[] = UserController::registerByDay($dateIterator);
-
-            // Wenn keine Status passiert sind, gibt es auch keine Möglichkeit, hafastrips anzulegen.
-            if ($statusesByDay[count($statusesByDay) - 1] == 0) { // Heute keine Stati
-                $hafasTripsByDay[] = (object) [];
-            } else {
-                $hafasTripsByDay[] = TransportController::usageByDay($dateIterator);
-            }
-        }
-
-        if (empty($dates)) {
-            $dates = [$begin->format("Y-m-d")];
-        }
-
-        return view('admin.usageboard', [
-            'begin'                  => $begin->format("Y-m-d"),
-            'end'                    => $end->format("Y-m-d"),
-            'dates'                  => $dates,
-            'statusesByDay'          => $statusesByDay,
-            'userRegistrationsByDay' => $userRegistrationsByDay,
-            'hafasTripsByDay'        => $hafasTripsByDay
-        ]);
+        return view('admin.usageboard', $usageBoardResponse);
     }
 
     /**

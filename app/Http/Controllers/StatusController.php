@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Notifications\StatusLiked;
 use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
+use Carbon\Exceptions\BadComparisonUnitException;
 use DateInterval;
 use DateTime;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use JetBrains\PhpStorm\ArrayShape;
 
 class StatusController extends Controller
 {
@@ -345,5 +347,65 @@ class StatusController extends Controller
                                   ->simplePaginate(15);
 
         return ['event' => $event, 'statuses' => $statusesResponse];
+    }
+
+    /**
+     * @param Carbon $begin
+     * @param Carbon $end
+     * @return array
+     * @throws \Exception
+     */
+    #[ArrayShape([
+        'begin' => "string",
+        'end' => "string",
+        'dates' => "array",
+        'statusesByDay' => "array",
+        'userRegistrationsByDay' => "array",
+        'hafasTripsByDay' => "array"
+    ])]
+    public static function getUsageBoard(Carbon $begin, Carbon $end): array {
+        if ($begin->isAfter($end)) {
+            throw new \Exception('Beginning is after ending');
+        }
+        if ($end->isFuture()) {
+            $end = Carbon::now();
+        }
+
+        $dates                  = [];
+        $statusesByDay          = [];
+        $userRegistrationsByDay = [];
+        $hafasTripsByDay        = [];
+
+        // Wir schlagen einen Tag drauf, um ihn in der Loop direkt wieder runterzunehmen.
+        $dateIterator = $end->copy()->addDays(1);
+        $cnt          = 0;
+        $datediff     = $end->diffInDays($begin);
+        while ($cnt < $datediff) {
+            $cnt++;
+            $dateIterator->addDays(-1);
+            $dates[]                  = $dateIterator->format("Y-m-d");
+            $statusesByDay[]          = StatusController::usageByDay($dateIterator);
+            $userRegistrationsByDay[] = UserController::registerByDay($dateIterator);
+
+            // Wenn keine Status passiert sind, gibt es auch keine Möglichkeit, hafastrips anzulegen.
+            if ($statusesByDay[count($statusesByDay) - 1] == 0) { // Heute keine Stati
+                $hafasTripsByDay[] = (object) [];
+            } else {
+                $hafasTripsByDay[] = TransportController::usageByDay($dateIterator);
+            }
+        }
+
+        if (empty($dates)) {
+            $dates = [$begin->format("Y-m-d")];
+        }
+
+        return [
+            'begin'                  => $begin->format("Y-m-d"),
+            'end'                    => $end->format("Y-m-d"),
+            'dates'                  => $dates,
+            'statusesByDay'          => $statusesByDay,
+            'userRegistrationsByDay' => $userRegistrationsByDay,
+            'hafasTripsByDay'        => $hafasTripsByDay
+        ];
     }
 }
