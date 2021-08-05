@@ -224,6 +224,7 @@
     "messages.cookie-notice-learn": "Mehr erfahren",
     "messages.exception.general": "Es ist ein Fehler aufgetreten. Bitte probiere es erneut.",
     "messages.exception.generalHafas": "Es gab ein Problem mit der Schnittstelle zu den Fahrplandaten. Bitte probiere es erneut.",
+    "messages.exception.duplicate": "Es ist ein Problem mit der Datenbank aufgetreten. Bitte überprüfe, ob die Aktion erfolgreich war.",
     "messages.account.please-confirm": "Bitte gib <i><b>:delete</b></i> ein um die Löschung zu bestätigen.",
     "modals.delete-confirm": "Löschen",
     "modals.deleteStatus-title": "Möchtest Du wirklich diesen Status löschen?",

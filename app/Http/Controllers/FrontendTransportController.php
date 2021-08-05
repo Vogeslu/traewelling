@@ -11,6 +11,7 @@ use App\Http\Controllers\TransportController as TransportBackend;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -170,12 +171,15 @@ class FrontendTransportController extends Controller
                     ]
                 ));
 
-        } catch (Throwable $exception) {
+        } catch(QueryException) {
+            return redirect()
+                ->route('dashboard')
+                ->with('error', __('messages.exception.duplicate'));
+        }catch (Throwable $exception) {
             report($exception);
             return redirect()
                 ->route('dashboard')
                 ->with('error', __('messages.exception.general'));
-
         }
 
     }

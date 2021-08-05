@@ -540,6 +540,10 @@ class TransportController extends Controller
      * @throws ModelNotFoundException
      * @api v1
      */
+    #[ArrayShape([
+        'status'               => "\App\Http\Resources\StatusResource",
+        'alsoOnThisConnection' => "mixed"
+    ])]
     public static function createTrainCheckin(
         Status $status,
         HafasTrip $trip,
