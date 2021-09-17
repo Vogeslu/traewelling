@@ -55,6 +55,7 @@ class StatusController extends Controller
      * @return Status|array|Builder|Model|object|null
      * @api v1
      * @frontend
+     * @todo split function in 2 (with and without UserID) and return just one data type (collection of statuses)
      */
     public static function getActiveStatuses($userId = null, bool $array = true) {
         if ($userId === null) {
@@ -67,10 +68,9 @@ class StatusController extends Controller
                                          'trainCheckin.HafasTrip.stopoversNEW.trainStation',
                                          'event'
                                      ])
-                              ->whereHas('trainCheckin', function($query) {
-                                  $query->where('departure', '<', date('Y-m-d H:i:s'))
-                                        ->where('arrival', '>', date('Y-m-d H:i:s'));
-                              })
+                              ->join('train_checkins', 'statuses.id', '=', 'train_checkins.status_id')
+                              ->where('train_checkins.departure', '<=', Carbon::now()->toIso8601String())
+                              ->where('train_checkins.arrival', '>=', Carbon::now()->toIso8601String())
                               ->get()
                               ->filter(function($status) {
                                   return (!$status->user->userInvisibleToMe && !$status->statusInvisibleToMe);
@@ -97,6 +97,7 @@ class StatusController extends Controller
             }
             return $status;
             //This line is important since we're using this method for two different purposes and I forgot that.
+            //@todo yeah... don't do this. split this function.
         }
         if ($statuses === null) {
             return null;
@@ -201,11 +202,11 @@ class StatusController extends Controller
      * @api v1
      */
     public static function EditStatus(
-        User $user,
-        int $statusId,
+        User   $user,
+        int    $statusId,
         string $body = null,
-        int $business = Business::PRIVATE,
-        int $visibility = StatusVisibility::PUBLIC
+        int    $business = Business::PRIVATE,
+        int    $visibility = StatusVisibility::PUBLIC
     ): Status {
         $status = Status::findOrFail($statusId);
 
@@ -269,8 +270,8 @@ class StatusController extends Controller
         Carbon $startDate,
         Carbon $endDate,
         string $fileType,
-        bool $privateTrips = true,
-        bool $businessTrips = true
+        bool   $privateTrips = true,
+        bool   $businessTrips = true
     ) {
         if (!$privateTrips && !$businessTrips) {
             abort(400, __('controller.status.export-neither-business'));
@@ -357,7 +358,7 @@ class StatusController extends Controller
                     __('export.title.status'),
                     __('export.title.stopovers'),
                     __('export.title.type'),
-                ], "\t");
+                ],      "\t");
                 foreach ($export as $t) {
                     fputcsv($fileStream, $t, "\t");
                 }
@@ -440,11 +441,11 @@ class StatusController extends Controller
     }
 
     public static function createStatus(
-        User $user,
-        bool $business,
-        $visibility,
+        User   $user,
+        bool   $business,
+               $visibility,
         string $body = null,
-        int $eventId = null,
+        int    $eventId = null,
         string $type = "hafas"
     ): Status {
         $event = null;
