@@ -99,6 +99,7 @@ class Status extends Model
      * When is a status invisible?
      * 0=public, 1=unlisted, 2=Followers, 3=Private
      * @return bool
+     * @deprecated use policy instead
      */
     public function getStatusInvisibleToMeAttribute(): bool {
         if($this->user->userInvisibleToMe) {

@@ -44,7 +44,7 @@ class StatusController extends Controller
             return $status;
         }
 
-        abort(403, "Status invisible to you.");
+        abort(403, "Status invisible to you."); //TODO: abort should only be used in frontend
     }
 
     /**
